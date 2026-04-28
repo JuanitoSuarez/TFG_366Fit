@@ -1,16 +1,40 @@
-# React + Vite
+# 366Fit - Frontend (React SPA)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositorio contiene el cliente web del sistema 366Fit, una plataforma integral diseñada para la gestión de clases y reservas de un gimnasio. El proyecto ha sido desarrollado como una Single Page Application (SPA) utilizando React y Vite, priorizando la reactividad y la experiencia de usuario.
 
-Currently, two official plugins are available:
+## Caracteristicas Principales
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Dashboard Dinamico: Interfaz adaptativa que modifica sus funcionalidades segun el rol del usuario autenticado (Cliente o Administrador).
+- Gestion de Clases: Visualizacion de horarios y disponibilidad en tiempo real mediante el consumo de servicios API.
+- Sistema de Reservas: Modulo completo para la gestion de plazas, incluyendo validaciones de aforo y cancelaciones con feedback de estado.
+- Panel Administrativo: Herramientas de gestion para administradores que permiten la creacion y eliminacion de sesiones de entrenamiento de forma dinamica.
+- Interfaz Personalizada: Diseno estructurado mediante CSS puro para garantizar una navegacion fluida y eficiente.
 
-## React Compiler
+## Tecnologias Utilizadas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 18: Biblioteca principal para la construccion de la interfaz de usuario.
+- Vite: Entorno de desarrollo y herramienta de construccion de alto rendimiento.
+- JavaScript (ES6+): Lenguaje de programacion para la logica de cliente.
+- CSS3: Implementacion de estilos, Flexbox y Grid para el diseno visual.
+- Fetch API: Protocolo para la comunicacion asincrona con el backend desarrollado en ASP.NET Core.
 
-## Expanding the ESLint configuration
+## Instalacion y Configuracion
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Clonar el repositorio:
+   git clone https://github.com/JuanitoSuarez/TFG_366Fit.git
+
+2. Acceder al directorio del frontend:
+   cd Frontend366Fit/frontend-366fit
+
+3. Instalar las dependencias necesarias:
+   npm install
+
+4. Iniciar la aplicacion en modo desarrollo:
+   npm run dev
+
+## Especificaciones de Conexion
+
+La aplicacion esta configurada para comunicarse con el servidor API en la direccion https://localhost:7044. Es requisito indispensable que el servicio de Backend este operativo para el correcto funcionamiento de los modulos de autenticacion, gestion de clases y procesamiento de reservas.
+
+---
+Autor: Juan Daniel Suárez Cabal - Proyecto Fin de Grado 2026
