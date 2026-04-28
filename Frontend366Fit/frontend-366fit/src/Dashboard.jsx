@@ -153,17 +153,71 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
   });
 
   const renderizarVista = () => {
-    if (vistaActual === 'inicio') return (
-      <div>
-        <h1 style={{ color: '#333', fontSize: '2.5rem', margin: '0 0 10px 0' }}>¡Hora de tu próximo reto, {usuario}!</h1>
-        <p style={{ color: '#666', fontSize: '1.2rem', marginBottom: '40px' }}>Este es tu panel de control para hoy.</p>
-        <div style={{ padding: '30px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderLeft: '5px solid #29B6F6', maxWidth: '500px' }}>
-          <h3 style={{ margin: '0 0 10px 0', color: '#29B6F6' }}>Resumen de Actividad</h3>
-          <p style={{ color: '#555' }}>Tu plan actual es: <strong>{planUsuario}</strong></p>
-          <p style={{ color: '#777', fontSize: '0.9rem' }}>Consulta tus clases o gestiona tu suscripción en el menú lateral.</p>
+    if (vistaActual === 'inicio') {
+      // Filtramos las próximas clases (desde hoy en adelante) y las ordenamos
+      const proximasClases = clases
+        .filter(c => new Date(c.fechaHora) >= new Date())
+        .sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora))
+        .slice(0, 4); // Mostramos las 4 más cercanas
+
+      const nombreLimpio = usuario.split('@')[0];
+
+      return (
+        <div>
+          <h1 style={{ color: '#333', fontSize: '2.5rem', margin: '0 0 10px 0', textTransform: 'capitalize' }}>
+            ¡Hora de tu próximo reto, {nombreLimpio}!
+          </h1>
+          <p style={{ color: '#666', fontSize: '1.2rem', marginBottom: '40px' }}>Estas son tus actividades para hoy.</p>
+          
+          <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+            {/* Resumen de Actividad */}
+            <div style={{ flex: '1', minWidth: '300px', padding: '30px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderLeft: '5px solid #29B6F6', height: 'fit-content' }}>
+              <h3 style={{ margin: '0 0 10px 0', color: '#29B6F6' }}>Resumen de actividad</h3>
+              <p style={{ color: '#555' }}>Tu plan actual es: <strong>{planUsuario}</strong></p>
+              <p style={{ color: '#777', fontSize: '0.9rem' }}>Consulta tus clases o gestiona tu suscripción en el menú lateral.</p>
+            </div>
+
+            {/* Agenda de Próximas Clases */}
+            <div style={{ flex: '1.5', minWidth: '350px', padding: '30px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+              <h3 style={{ margin: '0 0 20px 0', color: '#29B6F6' }}>Próximas clases en 366Fit</h3>
+              {proximasClases.length === 0 ? (
+                <p style={{ color: '#888' }}>No hay clases programadas para los próximos días.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  {proximasClases.map(c => {
+                    const d = new Date(c.fechaHora);
+                    const dia = d.getDate();
+                    const mes = d.toLocaleString('es-ES', { month: 'short' }).toUpperCase().replace('.', '');
+                    const hora = d.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+                    return (
+                      <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '15px', backgroundColor: '#f4f7f6', borderRadius: '8px', borderLeft: '4px solid #29B6F6' }}>
+                        {/* "Icono" de calendario */}
+                        <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '6px', textAlign: 'center', minWidth: '60px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
+                          <span style={{ display: 'block', fontSize: '0.7rem', color: '#dc3545', fontWeight: 'bold' }}>{mes}</span>
+                          <span style={{ display: 'block', fontSize: '1.4rem', color: '#333', fontWeight: 'bold', lineHeight: '1.1' }}>{dia}</span>
+                        </div>
+                        {/* Info de la clase */}
+                        <div style={{ flex: 1 }}>
+                          <h4 style={{ margin: '0 0 4px 0', color: '#29B6F6' }}>{c.nombre}</h4>
+                          <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>{hora} | Con {c.monitor}</p>
+                        </div>
+                        <button 
+                          onClick={() => setVistaActual('clases')}
+                          style={{ padding: '8px 12px', background: '#e1f5fe', color: '#0288d1', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                          Ver
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
 
     if (vistaActual === 'clases') return (
       <div>
@@ -257,13 +311,13 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
 
     if (vistaActual === 'admin') return (
       <div>
-        <h2 style={{ color: '#f39c12', borderBottom: '2px solid #f39c12', paddingBottom: '10px', display: 'inline-block' }}>Panel de Gestión Administrativa</h2>
+        <h2 style={{ color: '#29B6F6', borderBottom: '2px solid #29B6F6', paddingBottom: '10px', display: 'inline-block' }}>Panel de gestión administrativa</h2>
         
         <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', marginTop: '20px' }}>
           
           {/* Formulario de creación */}
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', flex: '1', minWidth: '350px', maxWidth: '500px' }}>
-            <h3 style={{ marginTop: 0, color: '#333' }}>Publicar Nueva Clase</h3>
+            <h3 style={{ marginTop: 0, color: '#29B6F6' }}>Publicar nueva clase</h3>
             <form onSubmit={crearClase} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Nombre de la Clase</label>
@@ -281,7 +335,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Aforo Máximo</label>
                 <input type="number" value={nuevaClase.aforoMaximo} onChange={e => setNuevaClase({...nuevaClase, aforoMaximo: parseInt(e.target.value)})} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }} />
               </div>
-              <button type="submit" disabled={estaCargando} style={{ marginTop: '10px', padding: '15px', backgroundColor: estaCargando ? '#ccc' : '#f39c12', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button type="submit" disabled={estaCargando} style={{ marginTop: '10px', padding: '15px', backgroundColor: estaCargando ? '#ccc' : '#29B6F6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                 {estaCargando ? 'Publicando...' : 'Crear Clase Ahora'}
               </button>
             </form>
@@ -289,7 +343,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
 
           {/* Listado de gestión para borrar */}
           <div style={{ flex: '1', minWidth: '350px' }}>
-            <h3 style={{ marginTop: 0, color: '#333' }}>Gestión de Horario Actual</h3>
+            <h3 style={{ marginTop: 0, color: '#29B6F6' }}>Gestión de horario actual</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
               {clases.length === 0 ? (
                 <p style={{ color: '#888' }}>No hay clases programadas para eliminar.</p>
@@ -303,7 +357,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center', 
-                    borderLeft: '5px solid #f39c12' 
+                    borderLeft: '5px solid #29B6F6' 
                   }}>
                     <div>
                       <h4 style={{ margin: '0 0 5px 0', color: '#333' }}>{c.nombre}</h4>
@@ -352,7 +406,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
           {rol && rol.toLowerCase().trim() === 'admin' && (
             <button 
               onClick={() => setVistaActual('admin')} 
-              style={{ ...getBtnStyle('admin'), color: '#f39c12', borderLeft: '5px solid #f39c12', marginTop: '20px', fontWeight: 'bold' }}
+              style={{ ...getBtnStyle('admin'), color: '#ffffff', borderLeft: '5px solid #ffffff', marginTop: '20px', fontWeight: 'bold' }}
             >
               PANEL ADMIN
             </button>
