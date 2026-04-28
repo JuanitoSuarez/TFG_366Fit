@@ -1,0 +1,26 @@
+POST https://localhost:7044/api/auth/register
+Content-Type: application/json
+
+{
+  "nombre_completo": "Juan Daniel",
+  "email": "juandaniel@366fit.com",
+  "password": "MiPasswordSegura123"
+}
+
+### Prueba de Login Correcto
+POST https://localhost:7044/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juandaniel@366fit.com",
+  "password": "MiPasswordSegura123"
+}
+
+### Prueba de Login Incorrecto (Contraseña mal)
+POST https://localhost:7044/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juandaniel@366fit.com",
+  "password": "ClaveEquivocada"
+}
