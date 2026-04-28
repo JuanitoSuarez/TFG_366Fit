@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import logoOficial from './assets/logo366fit.png'; 
+import logoOficial from './assets/logo366fit_white.png'; 
 
-// Añadimos 'rol' a las props para saber si mostrar el panel admin
-function Dashboard({ usuario, rol, onLogout }) {
+// Recibimos 'plan' como prop desde App.jsx para coherencia total
+function Dashboard({ usuario, rol, plan, onLogout }) {
   const [vistaActual, setVistaActual] = useState('inicio');
   const [clases, setClases] = useState([]);
   const [misReservas, setMisReservas] = useState([]);
-  const [planUsuario, setPlanUsuario] = useState('Cargando...'); 
+  const [planUsuario, setPlanUsuario] = useState(plan || 'Básico'); // Priorizamos el plan que viene del login
   const [estaCargando, setEstaCargando] = useState(false);
 
   // Estados para el formulario de Administrador
   const [nuevaClase, setNuevaClase] = useState({ nombre: '', monitor: '', fechaHora: '', aforoMaximo: 20 });
 
   const emailLimpio = usuario.trim().toLowerCase();
+
+  // --- ARREGLO DE SINCRONIZACIÓN ---
+  // Este efecto obliga al estado local a actualizarse en cuanto llega la prop real desde App.jsx
+  useEffect(() => {
+    if (plan && plan !== planUsuario) {
+      setPlanUsuario(plan);
+    }
+  }, [plan]);
 
   // --- FUNCIONES DE CARGA ---
   const cargarClases = () => {
@@ -29,6 +37,7 @@ function Dashboard({ usuario, rol, onLogout }) {
       .catch(err => console.error("Error al traer mis reservas:", err));
   };
 
+  // Esta función sincroniza el plan si el usuario lo mejora en tiempo real
   const cargarPlanReal = () => {
     fetch(`https://localhost:7044/api/Suscripciones/plan?email=${encodeURIComponent(emailLimpio)}`)
       .then(res => res.json())
@@ -38,7 +47,8 @@ function Dashboard({ usuario, rol, onLogout }) {
 
   useEffect(() => {
     cargarClases();
-    cargarPlanReal();
+    // Si el plan no vino por prop o es el valor inicial, lo buscamos para asegurar
+    if (!plan || plan === 'Básico') cargarPlanReal();
   }, []);
 
   useEffect(() => {
@@ -74,7 +84,7 @@ function Dashboard({ usuario, rol, onLogout }) {
     const res = await fetch(`https://localhost:7044/api/Clases/${id}`, { method: 'DELETE' });
     if (res.ok) {
       alert("🗑️ Clase eliminada.");
-      cargarClases(); // Refrescamos la lista
+      cargarClases(); 
     }
   } catch (err) {
     alert("❌ No se pudo eliminar la clase.");
@@ -148,21 +158,22 @@ function Dashboard({ usuario, rol, onLogout }) {
       <div>
         <h1 style={{ color: '#333', fontSize: '2.5rem', margin: '0 0 10px 0' }}>¡Hora de tu próximo reto, {usuario}!</h1>
         <p style={{ color: '#666', fontSize: '1.2rem', marginBottom: '40px' }}>Este es tu panel de control para hoy.</p>
-        <div style={{ padding: '30px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderLeft: '5px solid #004aad', maxWidth: '500px' }}>
-          <h3 style={{ margin: '0 0 10px 0', color: '#004aad' }}>Resumen de Actividad</h3>
-          <p style={{ color: '#555' }}>Consulta tus clases o gestiona tu suscripción en el menú lateral.</p>
+        <div style={{ padding: '30px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderLeft: '5px solid #29B6F6', maxWidth: '500px' }}>
+          <h3 style={{ margin: '0 0 10px 0', color: '#29B6F6' }}>Resumen de Actividad</h3>
+          <p style={{ color: '#555' }}>Tu plan actual es: <strong>{planUsuario}</strong></p>
+          <p style={{ color: '#777', fontSize: '0.9rem' }}>Consulta tus clases o gestiona tu suscripción en el menú lateral.</p>
         </div>
       </div>
     );
 
     if (vistaActual === 'clases') return (
       <div>
-        <h2 style={{ color: '#004aad', borderBottom: '2px solid #004aad', paddingBottom: '10px', display: 'inline-block' }}>Horario de Clases Disponibles</h2>
+        <h2 style={{ color: '#29B6F6', borderBottom: '2px solid #29B6F6', paddingBottom: '10px', display: 'inline-block' }}>Horario de Clases Disponibles</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
           {clases.map(c => {
             const fecha = new Date(c.fechaHora).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
             return (
-              <div key={c.id} style={{ padding: '25px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderLeft: '5px solid #004aad' }}>
+              <div key={c.id} style={{ padding: '25px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderLeft: '5px solid #29B6F6' }}>
                 <h3 style={{ margin: '0 0 10px 0', color: '#333', fontSize: '1.4rem' }}>{c.nombre}</h3>
                 <p><strong>Monitor:</strong> {c.monitor}</p>
                 <p style={{ textTransform: 'capitalize' }}><strong>Cuándo:</strong> {fecha}</p>
@@ -170,7 +181,7 @@ function Dashboard({ usuario, rol, onLogout }) {
                 <button 
                   onClick={() => reservarPlaza(c.id)} 
                   disabled={estaCargando}
-                  style={{ marginTop: '15px', width: '100%', padding: '10px', backgroundColor: estaCargando ? '#ccc' : '#004aad', color: 'white', border: 'none', borderRadius: '6px', cursor: estaCargando ? 'default' : 'pointer', fontWeight: 'bold' }}
+                  style={{ marginTop: '15px', width: '100%', padding: '10px', backgroundColor: estaCargando ? '#ccc' : '#29B6F6', color: 'white', border: 'none', borderRadius: '6px', cursor: estaCargando ? 'default' : 'pointer', fontWeight: 'bold' }}
                 >
                   {estaCargando ? 'Procesando...' : 'Reservar Plaza'}
                 </button>
@@ -183,7 +194,7 @@ function Dashboard({ usuario, rol, onLogout }) {
 
     if (vistaActual === 'reservas') return (
       <div>
-        <h2 style={{ color: '#004aad', borderBottom: '2px solid #004aad', paddingBottom: '10px', display: 'inline-block' }}>Mis Clases Programadas</h2>
+        <h2 style={{ color: '#29B6F6', borderBottom: '2px solid #29B6F6', paddingBottom: '10px', display: 'inline-block' }}>Mis Clases Programadas</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
           {misReservas.length === 0 ? <p style={{ color: '#888' }}>Aún no te has apuntado a ninguna clase.</p> : misReservas.map(r => (
             <div key={r.reservaId} style={{ padding: '25px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderLeft: '5px solid #28a745' }}>
@@ -206,13 +217,13 @@ function Dashboard({ usuario, rol, onLogout }) {
 
     if (vistaActual === 'suscripcion') {
       const planes = [
-        { nombre: '366Fit Basic', precio: '19.99€', color: '#6c757d', features: ['Acceso a sala de máquinas', 'Vestuarios', 'App móvil básica'] },
-        { nombre: '366Fit Plus', precio: '29.99€', color: '#004aad', features: ['Todo lo de Basic', 'Clases dirigidas ilimitadas', '1 Sesión con monitor/mes'] },
-        { nombre: '366Fit Premium', precio: '44.99€', color: '#f39c12', features: ['Todo lo de Plus', 'Acceso Spa & Sauna', 'Nutrición personalizada', 'Toallas incluidas'] }
+        { nombre: '366Fit Basic', precio: '19.99€', color: '#29B6F6', features: ['Acceso a sala de máquinas', 'Vestuarios', 'App móvil básica'] },
+        { nombre: '366Fit Plus', precio: '29.99€', color: '#1c7097', features: ['Todo lo de Basic', 'Clases dirigidas ilimitadas', '1 Sesión con monitor/mes'] },
+        { nombre: '366Fit Premium', precio: '44.99€', color: '#01579B', features: ['Todo lo de Plus', 'Acceso Spa & Sauna', 'Nutrición personalizada', 'Toallas incluidas'] }
       ];
       return (
         <div>
-          <h2 style={{ color: '#004aad', borderBottom: '2px solid #004aad', paddingBottom: '10px', display: 'inline-block' }}>Gestión de Suscripción</h2>
+          <h2 style={{ color: '#29B6F6', borderBottom: '2px solid #29B6F6', paddingBottom: '10px', display: 'inline-block' }}>Gestión de Suscripción</h2>
           <div style={{ marginTop: '20px', padding: '30px', backgroundColor: '#fff', borderRadius: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #ddd' }}>
             <div>
               <p style={{ margin: 0, color: '#888', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.8rem' }}>Estado de tu cuenta</p>
@@ -245,7 +256,6 @@ function Dashboard({ usuario, rol, onLogout }) {
       );
     }
 
-  // --- NUEVA VISTA: PANEL ADMIN ---
     if (vistaActual === 'admin') return (
       <div>
         <h2 style={{ color: '#f39c12', borderBottom: '2px solid #f39c12', paddingBottom: '10px', display: 'inline-block' }}>Panel de Gestión Administrativa</h2>
@@ -330,7 +340,7 @@ function Dashboard({ usuario, rol, onLogout }) {
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', fontFamily: 'sans-serif', overflow: 'hidden' }}>
-      <div style={{ width: '260px', backgroundColor: '#004aad', color: 'white', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: '260px', backgroundColor: '#29B6F6', color: 'white', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '20px', textAlign: 'center', borderBottom: '2px solid rgba(255,255,255,0.2)' }}>
           <img src={logoOficial} alt="Logo" style={{ width: '100%', maxWidth: '180px' }} />
         </div>
@@ -340,7 +350,6 @@ function Dashboard({ usuario, rol, onLogout }) {
           <button onClick={() => setVistaActual('reservas')} style={getBtnStyle('reservas')}>Mis Reservas</button>
           <button onClick={() => setVistaActual('suscripcion')} style={getBtnStyle('suscripcion')}>Suscripción</button>
           
-          {/* BOTÓN DINÁMICO: Solo si el rol es admin */}
           {rol && rol.toLowerCase().trim() === 'admin' && (
             <button 
               onClick={() => setVistaActual('admin')} 
@@ -350,7 +359,7 @@ function Dashboard({ usuario, rol, onLogout }) {
             </button>
           )}
         </nav>
-        <button onClick={onLogout} style={{ padding: '20px', backgroundColor: '#002a5c', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Cerrar Sesión</button>
+        <button onClick={onLogout} style={{ padding: '20px', backgroundColor: '#00a7f5', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Cerrar Sesión</button>
       </div>
       <div style={{ flex: 1, backgroundColor: '#f4f7f6', padding: '50px', overflowY: 'auto' }}>
         {renderizarVista()}

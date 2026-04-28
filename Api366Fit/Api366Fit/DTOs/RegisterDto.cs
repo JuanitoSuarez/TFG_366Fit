@@ -5,5 +5,6 @@
         public string nombre_completo { get; set; }
         public string email { get; set; }
         public string password { get; set; }
+        public string plan { get; set; }
     }
 }

@@ -6,43 +6,54 @@ export default function AuthView({ onLoginExitoso }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nombre, setNombre] = useState('');
+  const [plan, setPlan] = useState(''); // Nuevo estado para el plan obligatorio
   const [mensaje, setMensaje] = useState('');
+
+  // Definición de planes acorde a tu captura del frontend
+  const planesDisponibles = [
+    { nombre: '366Fit Basic', color: '#b6e8ff' },
+    { nombre: '366Fit Plus', color: '#94ddff' },
+    { nombre: '366Fit Premium', color: '#b0ddff' }
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje(''); 
 
+    // Validación: Obligar a elegir plan en el registro
+    if (!isLogin && !plan) {
+      setMensaje("Error: Debes seleccionar un plan de suscripción.");
+      return;
+    }
+
     try {
       if (isLogin) {
         // Petición de Login
         const response = await axios.post('https://localhost:7044/api/auth/login', { email, password });
-        
-        // Extraemos el mensaje del objeto para que no salga [object Object]
         setMensaje(response.data.mensaje);
         
-        // Redirigimos al Dashboard pasando Email y Rol
         setTimeout(() => {
           onLoginExitoso(response.data.email, response.data.rol); 
         }, 1000);
         
       } else {
-        // Petición de Registro
+        // Petición de Registro (Incluimos el campo plan)
         const response = await axios.post('https://localhost:7044/api/auth/register', { 
           nombre_completo: nombre, 
           email, 
-          password 
+          password,
+          plan: plan // Enviamos el plan elegido
         });
-        setMensaje(response.data);
+        setMensaje(response.data.mensaje || response.data);
       }
     } catch (error) {
-      // Si el error viene del backend (BadRequest), extraemos el mensaje
       const errorMsg = error.response?.data?.mensaje || error.response?.data || "Error de conexión con el servidor";
       setMensaje(errorMsg);
     }
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '400px', padding: '40px', fontFamily: 'sans-serif' }}>
+    <div style={{ width: '100%', maxWidth: '450px', padding: '40px', fontFamily: 'sans-serif' }}>
       
       <h2 style={{ color: 'black', fontSize: '2.5rem', marginBottom: '30px', textAlign: 'left', fontWeight: '800' }}>
         {isLogin ? 'INICIAR SESIÓN' : 'REGISTRARSE'}
@@ -51,11 +62,40 @@ export default function AuthView({ onLoginExitoso }) {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
         
         {!isLogin && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ color: 'black', fontWeight: 'bold' }}>Nombre completo</label>
-            <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} required 
-              style={{ padding: '15px', borderRadius: '5px', fontSize: '1rem', border: '1px solid #ccc' }}/>
-          </div>
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ color: 'black', fontWeight: 'bold' }}>Nombre completo</label>
+              <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} required 
+                style={{ padding: '15px', borderRadius: '5px', fontSize: '1rem', border: '1px solid #ccc' }}/>
+            </div>
+
+            {/* Selector de Planes Visual */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <label style={{ color: 'black', fontWeight: 'bold' }}>Selecciona tu Plan</label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {planesDisponibles.map((p) => (
+                  <div 
+                    key={p.nombre}
+                    onClick={() => setPlan(p.nombre)}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      textAlign: 'center',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem',
+                      fontWeight: 'bold',
+                      border: plan === p.nombre ? `3px solid ${p.color}` : '1px solid #ccc',
+                      backgroundColor: plan === p.nombre ? '#f0f9ff' : 'white',
+                      transition: '0.3s'
+                    }}
+                  >
+                    {p.nombre.replace('366Fit ', '')}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -85,7 +125,6 @@ export default function AuthView({ onLoginExitoso }) {
         </button>
       </form>
 
-      {/* Mensaje de feedback con colores limpios */}
       {mensaje && (
         <p style={{ 
           color: mensaje.toLowerCase().includes('error') || mensaje.toLowerCase().includes('incorrecta') || mensaje.toLowerCase().includes('no existe') 
@@ -99,7 +138,7 @@ export default function AuthView({ onLoginExitoso }) {
         </p>
       )}
 
-      <button onClick={() => { setIsLogin(!isLogin); setMensaje(''); }} 
+      <button onClick={() => { setIsLogin(!isLogin); setMensaje(''); setPlan(''); }} 
         style={{ marginTop: '20px', background: 'none', border: 'none', color: 'black', textDecoration: 'underline', cursor: 'pointer', opacity: '0.8' }}>
         {isLogin ? '¿No tienes cuenta? Regístrate aquí' : '¿Ya tienes cuenta? Inicia sesión'}
       </button>

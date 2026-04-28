@@ -18,6 +18,6 @@ namespace Api366Fit.Models
 
         public string rol { get; set; } = "cliente";
 
-        public string plan { get; set; } = "366Fit Basic";
+        public string plan { get; set; } = "Basic";
     }
 }

@@ -35,9 +35,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// --- ACTIVAMOS EL PASE VIP AQUÍ ---
 app.UseCors("PermitirReact");
-// ----------------------------------
 
 app.UseAuthorization();
 
