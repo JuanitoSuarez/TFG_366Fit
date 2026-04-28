@@ -9,12 +9,11 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
   const [planUsuario, setPlanUsuario] = useState(plan || 'Básico'); // Priorizamos el plan que viene del login
   const [estaCargando, setEstaCargando] = useState(false);
 
-  // Estados para el formulario de Administrador
+  // Estados para el formulario de administrador
   const [nuevaClase, setNuevaClase] = useState({ nombre: '', monitor: '', fechaHora: '', aforoMaximo: 20 });
 
   const emailLimpio = usuario.trim().toLowerCase();
-
-  // --- ARREGLO DE SINCRONIZACIÓN ---
+  
   // Este efecto obliga al estado local a actualizarse en cuanto llega la prop real desde App.jsx
   useEffect(() => {
     if (plan && plan !== planUsuario) {
@@ -22,7 +21,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
     }
   }, [plan]);
 
-  // --- FUNCIONES DE CARGA ---
+  // Funciones de carga
   const cargarClases = () => {
     fetch('https://localhost:7044/api/Clases')
       .then(res => res.json())
@@ -57,7 +56,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
   }, [vistaActual]);
 
 
-  // --- ACCIONES ADMIN ---
+  // Acciones de administrador
   const crearClase = async (e) => {
     e.preventDefault();
     setEstaCargando(true);
@@ -92,7 +91,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
 };
 
 
-  // --- ACCIONES USUARIO ---
+  // Acciones de usuario
   const reservarPlaza = async (claseId) => {
     setEstaCargando(true);
     try {
@@ -144,7 +143,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
   };
 
 
-  // --- ESTILOS REUTILIZABLES ---
+  // Estilos reutilizables
   const getBtnStyle = (nombreVista) => ({
     padding: '15px 20px', 
     background: vistaActual === nombreVista ? 'rgba(255,255,255,0.2)' : 'transparent', 
@@ -262,7 +261,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
         
         <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', marginTop: '20px' }}>
           
-          {/* Formulario de Creación */}
+          {/* Formulario de creación */}
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', flex: '1', minWidth: '350px', maxWidth: '500px' }}>
             <h3 style={{ marginTop: 0, color: '#333' }}>Publicar Nueva Clase</h3>
             <form onSubmit={crearClase} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -288,7 +287,7 @@ function Dashboard({ usuario, rol, plan, onLogout }) {
             </form>
           </div>
 
-          {/* Listado de Gestión para Borrar */}
+          {/* Listado de gestión para borrar */}
           <div style={{ flex: '1', minWidth: '350px' }}>
             <h3 style={{ marginTop: 0, color: '#333' }}>Gestión de Horario Actual</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>

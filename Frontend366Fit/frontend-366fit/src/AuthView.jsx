@@ -6,10 +6,10 @@ export default function AuthView({ onLoginExitoso }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nombre, setNombre] = useState('');
-  const [plan, setPlan] = useState(''); // Nuevo estado para el plan obligatorio
+  const [plan, setPlan] = useState('');
   const [mensaje, setMensaje] = useState('');
 
-  // Definición de planes acorde a tu captura del frontend
+  // Definición de planes
   const planesDisponibles = [
     { nombre: '366Fit Basic', color: '#b6e8ff' },
     { nombre: '366Fit Plus', color: '#94ddff' },
@@ -20,7 +20,7 @@ export default function AuthView({ onLoginExitoso }) {
     e.preventDefault();
     setMensaje(''); 
 
-    // Validación: Obligar a elegir plan en el registro
+    // Obliga a elegir plan en el registro
     if (!isLogin && !plan) {
       setMensaje("Error: Debes seleccionar un plan de suscripción.");
       return;
@@ -37,12 +37,12 @@ export default function AuthView({ onLoginExitoso }) {
         }, 1000);
         
       } else {
-        // Petición de Registro (Incluimos el campo plan)
+        // Petición de registro
         const response = await axios.post('https://localhost:7044/api/auth/register', { 
           nombre_completo: nombre, 
           email, 
           password,
-          plan: plan // Enviamos el plan elegido
+          plan: plan
         });
         setMensaje(response.data.mensaje || response.data);
       }
@@ -68,9 +68,7 @@ export default function AuthView({ onLoginExitoso }) {
               <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} required 
                 style={{ padding: '15px', borderRadius: '5px', fontSize: '1rem', border: '1px solid #ccc' }}/>
             </div>
-
-            {/* Selector de Planes Visual */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <label style={{ color: 'black', fontWeight: 'bold' }}>Selecciona tu Plan</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 {planesDisponibles.map((p) => (
